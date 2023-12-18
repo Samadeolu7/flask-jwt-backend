@@ -24,7 +24,12 @@ def signup():
     user = User(username=data['username'], password=hashed_password)
     db.session.add(user)
     db.session.commit()
-    return jsonify({'message': 'User created successfully'})
+
+    token = jwt.encode({'user_id': user.id, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=30)},
+                       app.config['SECRET_KEY'], algorithm='HS256')
+
+    return jsonify({'message': 'User created successfully', 'token': token.decode('utf-8')})
+
 
 @app.route('/signin', methods=['POST'])
 def signin():
